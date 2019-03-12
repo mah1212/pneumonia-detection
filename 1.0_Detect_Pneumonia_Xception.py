@@ -22,26 +22,28 @@ import pandas as pd
 # from keras import Model, Sequential
 # 
 # =============================================================================
-import keras
-from keras.models import Sequential 
-
-# Convolution is sequential
-# Since we are going to work on images which are 2 dimentional unlike videos (time)
-# API update use Conv2D instead of Convolution2D
-from keras.layers import Conv2D 
-
-# Step 2 Pooling step
-from keras.layers import MaxPooling2D
-
-# Avoid overfitting, import Dropout
-from keras.layers import Dropout
-
-# Step 3 Flatten
-from keras.layers import Flatten
-
-# Add fully connected layers in an ANN
-from keras.layers import Dense
-
+# =============================================================================
+# import keras
+# from keras.models import Sequential 
+# 
+# # Convolution is sequential
+# # Since we are going to work on images which are 2 dimentional unlike videos (time)
+# # API update use Conv2D instead of Convolution2D
+# from keras.layers import Conv2D 
+# 
+# # Step 2 Pooling step
+# from keras.layers import MaxPooling2D
+# 
+# # Avoid overfitting, import Dropout
+# from keras.layers import Dropout
+# 
+# # Step 3 Flatten
+# from keras.layers import Flatten
+# 
+# # Add fully connected layers in an ANN
+# from keras.layers import Dense
+# 
+# =============================================================================
 print("Importing finished!")
 
 
@@ -357,8 +359,14 @@ def data_generator(data, batch_size):
             
 # Create depthwise xception convolution neural network
 # following this paper https://arxiv.org/abs/1610.02357
-# keras link: https://keras.io/applications/#xception            
-
+# keras link: https://keras.io/applications/#xception  
+import keras
+from keras.models import Sequential 
+from keras.layers import Conv2D 
+from keras.layers import MaxPooling2D
+from keras.layers import Dropout
+from keras.layers import Flatten
+from keras.layers import Dense
 from keras.layers import SeparableConv2D
 from keras.layers import BatchNormalization
 from keras.layers import Input
@@ -408,6 +416,385 @@ def build_model():
 
 model = build_model()
 model.summary()
+
+
+''' Initialize with pre trained model
+The default value of include_top parameter in VGG16 function is True. 
+This means if you want to use a full layer pre-trained VGG network 
+(with fully connected parts) you need to download 
+vgg16_weights_tf_dim_ordering_tf_kernels.h5 file, 
+
+If you want to use custom, download 
+vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5
+
+C:\Users\My_User_Name\.keras\datasets.
+C:\Users\My_User_Name\.keras\model.
+
+Then import the pre-trained MobileNet model. The Mobilenet (trained on the 
+imagenet dataset for a thousand classes) will have a last layer consisting of 
+1000 neurons (one for each class). We want as many neurons in the last layer 
+of the network as the number of classes we wish to identify. So we discard the 
+1000 neuron layer and add our own last layer for the network.
+
+This can be done by setting (IncludeTop=False) when importing the model.
+
+So suppose you want to train a dog breed classifier to identify 120 different 
+breeds, we need 120 neurons in the final layer. This can be done using the 
+following code.
+'''
+import keras
+base_model = keras.applications.vgg16.VGG16(include_top=False, 
+                                            weights='imagenet', 
+                                            input_tensor=None, 
+                                            input_shape=None)
+
+base_model.summary()
+
+# =============================================================================
+# base_model.summary()
+# _________________________________________________________________
+# Layer (type)                 Output Shape              Param #   
+# =================================================================
+# input_1 (InputLayer)         (None, None, None, 3)     0         
+# _________________________________________________________________
+# block1_conv1 (Conv2D)        (None, None, None, 64)    1792      
+# _________________________________________________________________
+# block1_conv2 (Conv2D)        (None, None, None, 64)    36928     
+# _________________________________________________________________
+# block1_pool (MaxPooling2D)   (None, None, None, 64)    0         
+# _________________________________________________________________
+# block2_conv1 (Conv2D)        (None, None, None, 128)   73856     
+# _________________________________________________________________
+# block2_conv2 (Conv2D)        (None, None, None, 128)   147584    
+# _________________________________________________________________
+# block2_pool (MaxPooling2D)   (None, None, None, 128)   0         
+# _________________________________________________________________
+# block3_conv1 (Conv2D)        (None, None, None, 256)   295168    
+# _________________________________________________________________
+# block3_conv2 (Conv2D)        (None, None, None, 256)   590080    
+# _________________________________________________________________
+# block3_conv3 (Conv2D)        (None, None, None, 256)   590080    
+# _________________________________________________________________
+# block3_pool (MaxPooling2D)   (None, None, None, 256)   0         
+# _________________________________________________________________
+# block4_conv1 (Conv2D)        (None, None, None, 512)   1180160   
+# _________________________________________________________________
+# block4_conv2 (Conv2D)        (None, None, None, 512)   2359808   
+# _________________________________________________________________
+# block4_conv3 (Conv2D)        (None, None, None, 512)   2359808   
+# _________________________________________________________________
+# block4_pool (MaxPooling2D)   (None, None, None, 512)   0         
+# _________________________________________________________________
+# block5_conv1 (Conv2D)        (None, None, None, 512)   2359808   
+# _________________________________________________________________
+# block5_conv2 (Conv2D)        (None, None, None, 512)   2359808   
+# _________________________________________________________________
+# block5_conv3 (Conv2D)        (None, None, None, 512)   2359808   
+# _________________________________________________________________
+# block5_pool (MaxPooling2D)   (None, None, None, 512)   0         
+# =================================================================
+# Total params: 14,714,688
+# Trainable params: 14,714,688
+# Non-trainable params: 0
+# 
+# =============================================================================
+
+# read only layer names
+# =============================================================================
+# for i,layer in enumerate(base_model.layers):
+#     print(i,layer.name)
+#     
+# 0 input_1
+# 1 block1_conv1
+# 2 block1_conv2
+# 3 block1_pool
+# 4 block2_conv1
+# 5 block2_conv2
+# 6 block2_pool
+# 7 block3_conv1
+# 8 block3_conv2
+# 9 block3_conv3
+# 10 block3_pool
+# 11 block4_conv1
+# 12 block4_conv2
+# 13 block4_conv3
+# 14 block4_pool
+# 15 block5_conv1
+# 16 block5_conv2
+# 17 block5_conv3
+# 18 block5_pool    
+# 
+# =============================================================================
+
+# =============================================================================
+# # Get weights list
+# for layer in model.layers:
+#     weights = layer.get_weights()
+#     print(weights)
+# 
+# =============================================================================
+
+
+from __future__ import print_function
+
+import h5py
+
+def print_structure(weight_file_path):
+    """
+    Prints out the structure of HDF5 file.
+
+    Args:
+      weight_file_path (str) : Path to the file to analyze
+    """
+    f = h5py.File(weight_file_path)
+    try:
+        if len(f.attrs.items()):
+            print("{} contains: ".format(weight_file_path))
+            print("Root attributes:")
+        for key, value in f.attrs.items():
+            print("  {}: {}".format(key, value))
+
+        if len(f.items())==0:
+            return 
+
+        for layer, g in f.items():
+            print("  {}".format(layer))
+            print("    Attributes:")
+            for key, value in g.attrs.items():
+                print("      {}: {}".format(key, value))
+
+            print("    Dataset:")
+            for p_name in g.keys():
+                param = g[p_name]
+                print("      {}: {}".format(p_name, param.shape))
+    finally:
+        f.close()
+weight_file_path= '..\\chest_xray\\vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5'
+      
+print_structure(weight_file_path)
+
+# =============================================================================
+# print_structure(weight_file_path)
+# ..\chest_xray\vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5 contains: 
+# Root attributes:
+#   layer_names: [b'block1_conv1' b'block1_conv2' b'block1_pool' b'block2_conv1'
+#  b'block2_conv2' b'block2_pool' b'block3_conv1' b'block3_conv2'
+#  b'block3_conv3' b'block3_pool' b'block4_conv1' b'block4_conv2'
+#  b'block4_conv3' b'block4_pool' b'block5_conv1' b'block5_conv2'
+#  b'block5_conv3' b'block5_pool']
+#   block1_conv1
+#     Attributes:
+#       weight_names: [b'block1_conv1_W_1:0' b'block1_conv1_b_1:0']
+#     Dataset:
+#       block1_conv1_W_1:0: (3, 3, 3, 64)
+#       block1_conv1_b_1:0: (64,)
+#   block1_conv2
+#     Attributes:
+#       weight_names: [b'block1_conv2_W_1:0' b'block1_conv2_b_1:0']
+#     Dataset:
+#       block1_conv2_W_1:0: (3, 3, 64, 64)
+#       block1_conv2_b_1:0: (64,)
+#   block1_pool
+#     Attributes:
+#       weight_names: []
+#     Dataset:
+#   block2_conv1
+#     Attributes:
+#       weight_names: [b'block2_conv1_W_1:0' b'block2_conv1_b_1:0']
+#     Dataset:
+#       block2_conv1_W_1:0: (3, 3, 64, 128)
+#       block2_conv1_b_1:0: (128,)
+#   block2_conv2
+#     Attributes:
+#       weight_names: [b'block2_conv2_W_1:0' b'block2_conv2_b_1:0']
+#     Dataset:
+#       block2_conv2_W_1:0: (3, 3, 128, 128)
+#       block2_conv2_b_1:0: (128,)
+#   block2_pool
+#     Attributes:
+#       weight_names: []
+#     Dataset:
+#   block3_conv1
+#     Attributes:
+#       weight_names: [b'block3_conv1_W_1:0' b'block3_conv1_b_1:0']
+#     Dataset:
+#       block3_conv1_W_1:0: (3, 3, 128, 256)
+#       block3_conv1_b_1:0: (256,)
+#   block3_conv2
+#     Attributes:
+#       weight_names: [b'block3_conv2_W_1:0' b'block3_conv2_b_1:0']
+#     Dataset:
+#       block3_conv2_W_1:0: (3, 3, 256, 256)
+#       block3_conv2_b_1:0: (256,)
+#   block3_conv3
+#     Attributes:
+#       weight_names: [b'block3_conv3_W_1:0' b'block3_conv3_b_1:0']
+#     Dataset:
+#       block3_conv3_W_1:0: (3, 3, 256, 256)
+#       block3_conv3_b_1:0: (256,)
+#   block3_pool
+#     Attributes:
+#       weight_names: []
+#     Dataset:
+#   block4_conv1
+#     Attributes:
+#       weight_names: [b'block4_conv1_W_1:0' b'block4_conv1_b_1:0']
+#     Dataset:
+#       block4_conv1_W_1:0: (3, 3, 256, 512)
+#       block4_conv1_b_1:0: (512,)
+#   block4_conv2
+#     Attributes:
+#       weight_names: [b'block4_conv2_W_1:0' b'block4_conv2_b_1:0']
+#     Dataset:
+#       block4_conv2_W_1:0: (3, 3, 512, 512)
+#       block4_conv2_b_1:0: (512,)
+#   block4_conv3
+#     Attributes:
+#       weight_names: [b'block4_conv3_W_1:0' b'block4_conv3_b_1:0']
+#     Dataset:
+#       block4_conv3_W_1:0: (3, 3, 512, 512)
+#       block4_conv3_b_1:0: (512,)
+#   block4_pool
+#     Attributes:
+#       weight_names: []
+#     Dataset:
+#   block5_conv1
+#     Attributes:
+#       weight_names: [b'block5_conv1_W_1:0' b'block5_conv1_b_1:0']
+#     Dataset:
+#       block5_conv1_W_1:0: (3, 3, 512, 512)
+#       block5_conv1_b_1:0: (512,)
+#   block5_conv2
+#     Attributes:
+#       weight_names: [b'block5_conv2_W_1:0' b'block5_conv2_b_1:0']
+#     Dataset:
+#       block5_conv2_W_1:0: (3, 3, 512, 512)
+#       block5_conv2_b_1:0: (512,)
+#   block5_conv3
+#     Attributes:
+#       weight_names: [b'block5_conv3_W_1:0' b'block5_conv3_b_1:0']
+#     Dataset:
+#       block5_conv3_W_1:0: (3, 3, 512, 512)
+#       block5_conv3_b_1:0: (512,)
+#   block5_pool
+#     Attributes:
+#       weight_names: []
+#     Dataset:
+# 
+# =============================================================================
+# =============================================================================
+# 
+# @mthrok I tried your function, it report
+# print(" {}: {}".format(p_name, param.shape))
+# 
+# AttributeError: 'Group' object has no attribute 'shape'
+# 
+# However, when I tried print(" {}: {}".format(p_name, param.shape)) independently, 
+# it's able to work. Do you have any idea about that?
+# 
+# Changing from param.shape to param on the line which failed seems to work in eliminating the AttributeError ronzilllia mentions.
+# =============================================================================
+
+
+# =============================================================================
+# For keras 2
+# from __future__ import print_function
+# 
+# import h5py
+# 
+# def print_structure(weight_file_path):
+#     """
+#     Prints out the structure of HDF5 file.
+# 
+#     Args:
+#       weight_file_path (str) : Path to the file to analyze
+#     """
+#     f = h5py.File(weight_file_path)
+#     try:
+#         if len(f.attrs.items()):
+#             print("{} contains: ".format(weight_file_path))
+#             print("Root attributes:")
+#         for key, value in f.attrs.items():
+#             print("  {}: {}".format(key, value))
+# 
+#         if len(f.items())==0:
+#             return 
+# 
+#         for layer, g in f.items():
+#             print("  {}".format(layer))
+#             print("    Attributes:")
+#             for key, value in g.attrs.items():
+#                 print("      {}: {}".format(key, value))
+# 
+#             print("    Dataset:")
+#             for p_name in g.keys():
+#                 param = g[p_name]
+#                 subkeys = param.keys()
+#                 for k_name in param.keys():
+#                     print("      {}/{}: {}".format(p_name, k_name, param.get(k_name)[:]))
+#     finally:
+#         f.close()
+# 
+# 
+# print_structure(weight_file_path)
+# 
+# =============================================================================
+
+
+
+
+import h5py
+# Open the VGG16 weight file
+f = h5py.File('..\\chest_xray\\vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5', 'r')
+
+# Select the layers for which you want to set weight.
+# weight, block
+
+w,b = f['block1_conv1']['block1_conv1_W_1:0'], f['block1_conv1']['block1_conv1_b_1:0']
+model.layers[1].set_weights = [w,b]
+
+# equivalent equation below:
+# weight1 = f['block1_conv1']['block1_conv1_W_1:0']
+# block1 = f['block1_conv1']['block1_conv1_b_1:0']
+
+w,b = f['block1_conv2']['block1_conv2_W_1:0'], f['block1_conv2']['block1_conv2_b_1:0']
+model.layers[2].set_weights = [w,b]
+
+w,b = f['block2_conv1']['block2_conv1_W_1:0'], f['block2_conv1']['block2_conv1_b_1:0']
+model.layers[4].set_weights = [w,b]
+
+w,b = f['block2_conv2']['block2_conv2_W_1:0'], f['block2_conv2']['block2_conv2_b_1:0']
+model.layers[5].set_weights = [w,b]
+
+f.close()
+model.summary() 
+
+#a, b = c[3][4], c[3][5]
+#print(a, b)
+
+for size in [2, 5, 8]:
+    print(size)
+    
+for _ in range(8):
+    print('a')
+
+''' Batch Normalization 
+An easy way to solve this problem for the input layer is to randomize the data 
+before creating mini-batches.
+
+But, how do we solve this for the hidden layers? Just as it made intuitive sense 
+to have a uniform distribution for the input layer, it is advantageous to have 
+the same input distribution for each hidden unit over time while training. 
+But in a neural network, each hidden unit’s input distribution changes every time 
+there is a parameter update in the previous layer. 
+
+This is called internal covariate shift. This makes training slow and requires 
+a very small learning rate and a good parameter initialization. 
+
+This problem is solved by normalizing the layer’s inputs over a mini-batch and 
+this process is therefore called Batch Normalization.
+
+'''
 
 
 '''
